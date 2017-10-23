@@ -14,6 +14,7 @@ var game = {
   userIncorrect: 0,
   questionsArr: [],
   replay: false,
+  //Start the game with inquirer prompt
   startGame: function(){
     inquirer.prompt([
       {
@@ -53,7 +54,6 @@ var game = {
         ]).then(function(answer){
           game.userName = answer.userName;
           console.log('\n GOOD LUCK!! '+game.userName.toUpperCase()+'!\n');
-          // console.log(game.questionsArr);
           game.displayQACard();
         });
       }
@@ -64,7 +64,7 @@ var game = {
   },
 
 
-  //Get Questions and answers from opentdb API
+  //Start the Game with Get Questions and answers from opentdb API
   gameInit: function(url,category){
     if(game.replay === false){
       game.userCorrect = 0;
@@ -83,7 +83,7 @@ var game = {
     }
     return deckArr;
   },
-
+  //Decode string Characters from HTML Symboles to text
   decodeStr: function(string){
     if(string.length >= 20 ){
       string = he.decode(string, {
@@ -95,13 +95,12 @@ var game = {
         'isAttributeValue': false
       });
     }
-    // console.log(string)
     return string;
   },
 
+  //Display cards to user
   displayQACard: function(){
     this.shuffle(game.cardsDeck);
-    // console.log(game.correctAnswers)
     inquirer.prompt(game.questionsArr).then(function(answers){
       for(var key in answers){
         if(game.correctAnswers.indexOf(answers[key]) !== -1){
@@ -128,6 +127,7 @@ var game = {
       });
     });
   },
+  //Ending the game and show the user guesses
   endGame: function(answers) {
     for(var i=0; i < game.correctAnswers.length; i++){
       console.log('\n Your answer:', answers['question'+i+''], '==> Correct Answer:', game.correctAnswers[i])
