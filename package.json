@@ -1,0 +1,25 @@
+{
+  "name": "flash-cards",
+  "version": "1.0.0",
+  "description": "A CLI Flash Cards game built on Node.js",
+  "main": "flashcard.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jacktamas/Flash-Cards.git"
+  },
+  "author": "jack tamas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jacktamas/Flash-Cards/issues"
+  },
+  "homepage": "https://github.com/Jacktamas/Flash-Cards#readme",
+  "dependencies": {
+    "inquirer": "^3.3.0",
+    "request": "^2.83.0",
+    "request-promise": "^4.2.2",
+    "rx": "^4.1.0"
+  }
+}
