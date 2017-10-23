@@ -9,6 +9,8 @@ var url = 'https://opentdb.com/api.php?amount=5&difficulty=easy&type=multiple&ca
 var game = {
   cardsDeck: new DeckModel(),
   userName: null,
+  categories: ['General Knowledge', 'Film', 'Music', 'Science & Nature', 'Science: Computers'],
+  selectedCategories: [],
   correctAnswers: [],
   userCorrect: 0,
   userIncorrect: 0,
@@ -16,14 +18,20 @@ var game = {
   replay: false,
   //Start the game with inquirer prompt
   startGame: function(){
+    for(var i=0; i < game.categories.length; i++){
+      if(game.selectedCategories.indexOf(game.categories[i]) !== -1){
+        game.categories.splice([i], 1);
+      }
+    }
     inquirer.prompt([
       {
         type: 'list',
         name: 'category',
         message: 'Choose your questions category:',
-        choices: ['General Knowledge', 'Film', 'Music', 'Science & Nature', 'Science: Computers']
+        choices: game.categories
       }
     ]).then(function(answer){
+      game.selectedCategories.push(answer.category);
       switch (answer.category) {
         case 'General Knowledge':
         game.gameInit(url,9);
@@ -62,7 +70,6 @@ var game = {
       }
     });
   },
-
 
   //Start the Game with Get Questions and answers from opentdb API
   gameInit: function(url,category){
@@ -110,27 +117,32 @@ var game = {
           game.userIncorrect +=1;
         }
       }
-      inquirer.prompt([
-        {
-          type: 'confirm',
-          name: 'playAgain',
-          message: 'Would you like to play again?'
-        }
-      ]).then(function(confirmation){
-        if(confirmation.playAgain === true){
-          game.replay = true;
-          game.startGame();
-        }
-        else {
-          game.endGame(answers)
-        }
-      });
+      if (game.categories.length === 1) {
+        game.endGame(answers)
+      }
+      else {
+        inquirer.prompt([
+          {
+            type: 'confirm',
+            name: 'playAgain',
+            message: 'Would you like to play again?'
+          }
+        ]).then(function(confirmation){
+          if(confirmation.playAgain === true){
+            game.replay = true;
+            game.startGame();
+          }
+          else {
+            game.endGame(answers)
+          }
+        });
+      }
     });
   },
   //Ending the game and show the user guesses
   endGame: function(answers) {
     for(var i=0; i < game.correctAnswers.length; i++){
-      console.log('\n Your answer:', answers['question'+i+''], '==> Correct Answer:', game.correctAnswers[i])
+      console.log(' Your answer:', answers['question'+i+''], '==> Correct answer:', game.correctAnswers[i])
     }
     game.replay = false;
     if(game.userCorrect >= game.userIncorrect){
