@@ -1,10 +1,10 @@
 var DeckModel = require('../model/deck-model.js');
 var CardModel = require('../model/card-model.js');
 var QuestionModel = require('../model/question-model.js');
-
+var he = require('he')
 var request = require('request');
 var inquirer = require('inquirer');
-var url = 'https://opentdb.com/api.php?amount=6&difficulty=easy&type=multiple&category=';
+var url = 'https://opentdb.com/api.php?amount=5&difficulty=easy&type=multiple&category=';
 
 var game = {
   cardsDeck: new DeckModel(),
@@ -84,8 +84,24 @@ var game = {
     return deckArr;
   },
 
+  decodeStr: function(string){
+    if(string.length >= 20 ){
+      string = he.decode(string, {
+        'isAttributeValue': false
+      }).toUpperCase();
+    }
+    else if(string.length < 20){
+      string = he.decode(string, {
+        'isAttributeValue': false
+      });
+    }
+    // console.log(string)
+    return string;
+  },
+
   displayQACard: function(){
     this.shuffle(game.cardsDeck);
+    // console.log(game.correctAnswers)
     inquirer.prompt(game.questionsArr).then(function(answers){
       for(var key in answers){
         if(game.correctAnswers.indexOf(answers[key]) !== -1){
@@ -107,24 +123,40 @@ var game = {
           game.startGame();
         }
         else {
-          game.endGame()
+          game.endGame(answers)
         }
       });
     });
   },
-  endGame: function() {
+  endGame: function(answers) {
+    for(var i=0; i < game.correctAnswers.length; i++){
+      console.log('\n Your answer:', answers['question'+i+''], '==> Correct Answer:', game.correctAnswers[i])
+    }
     game.replay = false;
-    console.log('\n '+game.userName,'you have '+game.userCorrect+' correct answers & '+game.userIncorrect+' incorrect answers! Good Job!');
+    if(game.userCorrect >= game.userIncorrect){
+      console.log('\n '+(game.userName).toUpperCase()+',' ,'you have '+game.userCorrect+' correct answers & '+game.userIncorrect+' incorrect answers! Good Job!');
+    }
+    else {
+      console.log('\n '+(game.userName).toUpperCase()+',' ,'you have '+game.userCorrect+' correct answers & '+game.userIncorrect+' incorrect answers! Stop watching TV! You need to go to college buddy!');
+    }
   },
-  // Build Cards and Deck
+  // Build Cards and Decks
   getQA: function(error, reponse, body) {
     if(error){
       throw error;
     }
     for(var i=0; i < JSON.parse(body).results.length; i++){
-      game.cardsDeck.addCard(new CardModel(JSON.parse(body).results[i].question, JSON.parse(body).results[i].correct_answer, JSON.parse(body).results[i].incorrect_answers));
-      game.cardsDeck.cards[i].addAnswer(JSON.parse(body).results[i].correct_answer);
-      game.correctAnswers.push(JSON.parse(body).results[i].correct_answer);
+      game.cardsDeck.addCard(new CardModel(
+        game.decodeStr(JSON.parse(body).results[i].question),
+        game.decodeStr(JSON.parse(body).results[i].correct_answer)
+      ));
+      var incorrectAnsArr = JSON.parse(body).results[i].incorrect_answers;
+      for(var j=0; j < incorrectAnsArr.length; j++){
+        game.cardsDeck.cards[i].addChoice(game.decodeStr(incorrectAnsArr[j]));
+      }
+
+      game.cardsDeck.cards[i].addChoice(game.decodeStr(JSON.parse(body).results[i].correct_answer));
+      game.correctAnswers.push(game.decodeStr(JSON.parse(body).results[i].correct_answer));
       game.shuffle(game.cardsDeck.cards[i].choices);
       game.questionsArr.push(new QuestionModel('list', 'question'+i+'', game.cardsDeck.cards[i].back, game.cardsDeck.cards[i].choices));
     }

@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Jacktamas/Flash-Cards#readme",
   "dependencies": {
+    "he": "^1.1.1",
     "inquirer": "^3.3.0",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",

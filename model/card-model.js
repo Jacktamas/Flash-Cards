@@ -1,10 +1,10 @@
-var card = function(question, answer, choices){
+var card = function(question, answer){
   this.back = question;
   this.front = answer;
-  this.choices = choices;
+  this.choices = [];
 }
-card.prototype.addAnswer = function (answer) {
-  return this.choices.push(answer);
+card.prototype.addChoice = function (choice) {
+  return this.choices.push(choice);
 };
 
 module.exports = card;
